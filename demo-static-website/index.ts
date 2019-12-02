@@ -43,8 +43,13 @@ const storageContainer = new azure.storage.Container(`${prefix}sa-c1`, {
     storageAccountName: storageAccount.name,
 });
 
+// output the name of the resource group
 export const resourceGroupName = resourceGroup.name;
 
+/// 2nd demo extenstion starts here. ///
+
+// transform the storage account into a static website.
+// logic for this grouped into a seperate logical component (file)
 const sw = new StaticWebsite(`${prefix}sw`, {
     storageAccount,
 });
@@ -53,6 +58,7 @@ const sw = new StaticWebsite(`${prefix}sw`, {
 export const staticEndpoint = sw.staticWebsite.endpoint;
 
 // add a CDN & endpoint in front of the website
+// once added can use this to add custom domain / certificate (code not shown)
 const cdn = new azure.cdn.Profile(`${prefix}cdn`, {
     resourceGroupName: resourceGroup.name,
     sku: "Standard_Microsoft",

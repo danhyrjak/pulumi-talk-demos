@@ -42,4 +42,5 @@ const storageContainer = new azure.storage.Container(`${prefix}sa-c1`, {
     storageAccountName: storageAccount.name,
 });
 
+// output the name of the resource group
 export const resourceGroupName = resourceGroup.name;

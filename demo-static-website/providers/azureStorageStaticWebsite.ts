@@ -1,3 +1,6 @@
+///example dynamic resource provider. For more details on dynamic providers see the official docs:
+// https://www.pulumi.com/docs/intro/concepts/programming-model/#dynamicproviders
+
 import * as pulumi from "@pulumi/pulumi";
 import * as cp from "child_process";
 import * as url from "url";
@@ -24,10 +27,15 @@ interface AzureStorageStaticWebsiteOutputs {
 }
 
 // There's currently no way to enable the Static Web Site feature of a storage account via ARM
-// Therefore, we created a custom provider which wraps corresponding Azure CLI commands
+// or the inbuild provider, therefore, we created a custom provider which wraps corresponding Azure CLI commands
 class AzureStorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
 
-    public async check(olds: AzureStorageStaticWebsiteInputs, news: AzureStorageStaticWebsiteInputs): Promise<pulumi.dynamic.CheckResult> {
+    // optional. if specified this method should validate the inputs and return them.
+    // the inputs can be altered here if required. if an error is thrown here the provider
+    // exits out early and no other methods are called.
+    public async check(
+        olds: AzureStorageStaticWebsiteInputsUnwrapped,
+        news: AzureStorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.CheckResult> {
         const failures = [];
 
         if (!news.accountName) {
@@ -37,12 +45,16 @@ class AzureStorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvid
         return { inputs: news, failures };
     }
 
+    // optional. if specified called when a resource already exists in the pulumi state and the program runs.
+    // this method decides if an update is required, and if it is does it have to be a replacement or update.
+    // if no method is defined the resource is only created once and never altered.
     public async diff(
         id: pulumi.ID,
         olds: AzureStorageStaticWebsiteOutputsUnwrapped,
         news: AzureStorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.DiffResult> {
         const replaces = [];
 
+        // if storage account name changes then need to remove old and create new.
         if (olds.accountName !== news.accountName) {
             replaces.push("accountName");
         }
@@ -53,6 +65,8 @@ class AzureStorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvid
         };
     }
 
+    // required. called when a new resource is created or when diff requires an update that requires deletion and re-creation.
+    // this method must be specified and it returns the id of the resource and the outputs.
     public async create(inputs: AzureStorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.CreateResult> {
         // Helper function to execute a command, supress the warnings from polluting the output, and parse the result as JSON
         const executeToJson = (command: string) => JSON.parse(cp.execSync(command, { stdio: ["pipe", "pipe", "ignore"] }).toString());
@@ -83,9 +97,28 @@ class AzureStorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvid
             },
         };
     }
+
+    // public async update(
+    //     id: pulumi.ID,
+    //     news: AzureStorageStaticWebsiteInputsUnwrapped,
+    //     olds: AzureStorageStaticWebsiteOutputsUnwrapped): Promise<pulumi.dynamic.UpdateResult> {
+    // optional. if specified called when an update is required on an existing tracked
+    // resource in the pulumi state file. returns the update outputs.
+    // }
+
+    // public async delete(id: pulumi.ID, olds: AzureStorageStaticWebsiteOutputsUnwrapped) {
+    //     // optional. if specified called when the resource needs to be deleted.
+    // }
+
+    // public async read(id: pulumi.ID, olds: AzureStorageStaticWebsiteOutputsUnwrapped){
+    //    // optional. can be used to get references for resource where data is not
+    //    // kept track of in the pulumi state store.
+    // }
+
 }
 
-export class AzureStorageStaticWebsite
+// exported component that uses the provider defined above
+export default class AzureStorageStaticWebsite
     extends pulumi.dynamic.Resource
     implements AzureStorageStaticWebsiteOutputs {
 

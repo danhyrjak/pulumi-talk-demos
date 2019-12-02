@@ -1,14 +1,16 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as azure from "@pulumi/azure";
-import * as crypto from "crypto";
 import * as path from "path";
 import * as fs from "fs";
-import { AzureStorageStaticWebsite } from "../providers/azureStorageStaticWebsite";
+import AzureStorageStaticWebsite from "../providers/azureStorageStaticWebsite";
 
 export interface StaticWebsiteProps {
     storageAccount: azure.storage.Account;
 }
 
+// logical component to group related storage website resource functionality together
+// to expose as one resource. Note: no state is used for this wrapper component
+// so it will be executed on every run of the application. 
 export default class StaticWebsite extends pulumi.ComponentResource {
     public readonly staticWebsite: AzureStorageStaticWebsite;
 
@@ -52,12 +54,12 @@ export default class StaticWebsite extends pulumi.ComponentResource {
             throw new Error(`The following ${invalidFiles.length} files in ${siteSourcefilesPath} have a unsupported file extenstion:\n${invalidFiles.join("\n")}`);
         }
 
-        // all valid, create and configure blob container to host static website
+        // all valid, create and configure blob container to host static website (via custom dynamicProvider)
         this.staticWebsite = new AzureStorageStaticWebsite(`${name}-website`, {
             accountName: props.storageAccount.name,
         });
 
-        // upload files, redo if content changed
+        // upload files, will reupload fresh file if content changed as tracked by Pulumi
         files.map((filename) => new azure.storage.Blob(`${name}-${filename}`, {
             contentType: allowedFileExtContentTypeMapping[getFileExtenstion(filename)],
             name: filename,
