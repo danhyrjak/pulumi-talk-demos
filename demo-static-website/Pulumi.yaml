@@ -1,0 +1,3 @@
+name: demo-static-website
+runtime: nodejs
+description: A Pulumi program to create a static website in Azure blob storage fronted by Azure CDN.

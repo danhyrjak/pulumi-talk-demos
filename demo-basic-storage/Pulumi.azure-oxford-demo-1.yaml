@@ -1,0 +1,5 @@
+encryptionsalt: v1:TcPOxzhAFEU=:v1:RU+g2A7YobUEbMYi:dqeQjx4qBxv128E5hnQF+7DMCMmdFQ==
+config:
+  azure:location: NorthEurope
+  azure:environment: public
+  

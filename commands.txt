@@ -1,0 +1,22 @@
+commands for the demo (running in Powershell window)
+
+use environment variables below to hide update warning
+and set default passphrase for local stack encryption
+$env:PULUMI_SKIP_UPDATE_CHECK="true"
+$env:PULUMI_CONFIG_PASSPHRASE = "qwerty"
+
+az login
+pulumi login --local
+
+cd demo-basic-storage
+pulumi stack init azure-oxford-demo-01
+COPY config values from azure-oxford-demo-1
+pulumi up
+'yes' to create resources
+VIEW state file once done
+
+cd ../demo-static-website
+pulumi stack select azure-oxford-demo-02
+ADD new demo.html file in data/wwwroot
+pulumi up
+'yes' to update resources

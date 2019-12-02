@@ -1,0 +1,5 @@
+encryptionsalt: v1:MUnYr/3VNDo=:v1:SK99UYCsVDaEM5zo:KAoQ8D8BytlUD9dZL/xhoDVS/MeEzg==
+config:
+  azure:location: NorthEurope
+  azure:environment: public
+  

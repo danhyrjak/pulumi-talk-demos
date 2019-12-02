@@ -1,0 +1,10 @@
+{
+    "name": "demo-basic-storage",
+    "devDependencies": {
+        "@types/node": "^12.11.5"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^1.6.1",
+        "@pulumi/azure": "^1.5.0"
+    }
+}
