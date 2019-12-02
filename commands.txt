@@ -1,10 +1,15 @@
-commands for the demo (running in Powershell window)
+machine installation requirements:
+node 10.16.1 or higher
+typescript
+azure cli
+pulumi (1.6.1 or above)
 
 use environment variables below to hide update warning
-and set default passphrase for local stack encryption
+and set default passphrase for local stack encryption:
 $env:PULUMI_SKIP_UPDATE_CHECK="true"
 $env:PULUMI_CONFIG_PASSPHRASE = "qwerty"
 
+commands for the demo (running in Powershell window):
 az login
 pulumi login --local
 

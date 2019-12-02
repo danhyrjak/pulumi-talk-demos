@@ -2,21 +2,21 @@ import * as pulumi from "@pulumi/pulumi";
 import * as cp from "child_process";
 import * as url from "url";
 
-export interface StorageStaticWebsiteInputs {
+export interface AzureStorageStaticWebsiteInputs {
     accountName: pulumi.Input<string>;
 }
 
-interface StorageStaticWebsiteInputsUnwrapped {
+interface AzureStorageStaticWebsiteInputsUnwrapped {
     accountName: string;
 }
 
-interface StorageStaticWebsiteOutputsUnwrapped extends StorageStaticWebsiteInputsUnwrapped {
+interface AzureStorageStaticWebsiteOutputsUnwrapped extends AzureStorageStaticWebsiteInputsUnwrapped {
     endpoint: string;
     hostName: string;
     webContainerName: string;
 }
 
-interface StorageStaticWebsiteOutputs {
+interface AzureStorageStaticWebsiteOutputs {
     accountName: pulumi.Output<string>;
     endpoint: pulumi.Output<string>;
     hostName: pulumi.Output<string>;
@@ -25,9 +25,9 @@ interface StorageStaticWebsiteOutputs {
 
 // There's currently no way to enable the Static Web Site feature of a storage account via ARM
 // Therefore, we created a custom provider which wraps corresponding Azure CLI commands
-class StorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
+class AzureStorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
 
-    public async check(olds: StorageStaticWebsiteInputs, news: StorageStaticWebsiteInputs): Promise<pulumi.dynamic.CheckResult> {
+    public async check(olds: AzureStorageStaticWebsiteInputs, news: AzureStorageStaticWebsiteInputs): Promise<pulumi.dynamic.CheckResult> {
         const failures = [];
 
         if (!news.accountName) {
@@ -39,8 +39,8 @@ class StorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
 
     public async diff(
         id: pulumi.ID,
-        olds: StorageStaticWebsiteOutputsUnwrapped,
-        news: StorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.DiffResult> {
+        olds: AzureStorageStaticWebsiteOutputsUnwrapped,
+        news: AzureStorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.DiffResult> {
         const replaces = [];
 
         if (olds.accountName !== news.accountName) {
@@ -53,7 +53,7 @@ class StorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
         };
     }
 
-    public async create(inputs: StorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.CreateResult> {
+    public async create(inputs: AzureStorageStaticWebsiteInputsUnwrapped): Promise<pulumi.dynamic.CreateResult> {
         // Helper function to execute a command, supress the warnings from polluting the output, and parse the result as JSON
         const executeToJson = (command: string) => JSON.parse(cp.execSync(command, { stdio: ["pipe", "pipe", "ignore"] }).toString());
 
@@ -85,16 +85,16 @@ class StorageStaticWebsiteProvider implements pulumi.dynamic.ResourceProvider {
     }
 }
 
-export class StorageStaticWebsite
+export class AzureStorageStaticWebsite
     extends pulumi.dynamic.Resource
-    implements StorageStaticWebsiteOutputs {
+    implements AzureStorageStaticWebsiteOutputs {
 
     public readonly accountName: pulumi.Output<string>;
     public readonly endpoint: pulumi.Output<string>;
     public readonly hostName: pulumi.Output<string>;
     public readonly webContainerName: pulumi.Output<string>;
 
-    constructor(name: string, args: StorageStaticWebsiteInputs, opts?: pulumi.CustomResourceOptions) {
-        super(new StorageStaticWebsiteProvider(), name, { ...args, endpoint: undefined, hostName: undefined, webContainerName: undefined }, opts);
+    constructor(name: string, args: AzureStorageStaticWebsiteInputs, opts?: pulumi.CustomResourceOptions) {
+        super(new AzureStorageStaticWebsiteProvider(), name, { ...args, endpoint: undefined, hostName: undefined, webContainerName: undefined }, opts);
     }
 }

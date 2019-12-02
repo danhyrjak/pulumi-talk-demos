@@ -1,8 +1,6 @@
 import * as azure from "@pulumi/azure";
 import * as pulumi from "@pulumi/pulumi";
-import { StorageStaticWebsite } from "./providers/storageStaticWebsite";
-import * as fs from "fs";
-import * as path from "path";
+import StaticWebsite from "./components/StaticWebsite";
 
 // get reference to azure config settings
 const azureConfig = new pulumi.Config("azure");
@@ -40,37 +38,21 @@ const storageAccount = new azure.storage.Account(`${prefix}sa`, {
     ...commonArgs,
 });
 
-export const resourceGroupName = resourceGroup.name;
-
-// read files from data directory, validate minimum required exist
-const siteSourcefilesPath = path.join(".", "data", "wwwroot");
-const files = fs.readdirSync(siteSourcefilesPath);
-if (files.indexOf("index.html") === -1) {
-    throw new Error("index.html missing from data/wwwroot");
-}
-if (files.indexOf("404.html") === -1) {
-    throw new Error("404.html missing from data/wwwroot");
-}
-
-// create and configure blob container to host static website
-const staticWebsite = new StorageStaticWebsite(`${prefix}website`, {
-    accountName: storageAccount.name,
+// create a container
+const storageContainer = new azure.storage.Container(`${prefix}sa-c1`, {
+    storageAccountName: storageAccount.name,
 });
 
-// upload files
-files.map((filename) => new azure.storage.Blob(`${prefix}${filename}`, {
-    name: filename,
-    storageAccountName: staticWebsite.accountName,
-    storageContainerName: staticWebsite.webContainerName,
-    type: "block",
-    source: `${siteSourcefilesPath}/${filename}`,
-    contentType: "text/html", // TODO: support other file types
-})); // TODO: handle file changes
+export const resourceGroupName = resourceGroup.name;
 
-// Web endpoint to the website
-export const staticEndpoint = staticWebsite.endpoint;
+const sw = new StaticWebsite(`${prefix}sw`, {
+    storageAccount,
+});
 
-// add a CDN in front of the website
+// export web endpoint to the static website
+export const staticEndpoint = sw.staticWebsite.endpoint;
+
+// add a CDN & endpoint in front of the website
 const cdn = new azure.cdn.Profile(`${prefix}cdn`, {
     resourceGroupName: resourceGroup.name,
     sku: "Standard_Microsoft",
@@ -79,12 +61,13 @@ const cdn = new azure.cdn.Profile(`${prefix}cdn`, {
 const cdnEndpointResource = new azure.cdn.Endpoint(`${prefix}cdn-ep`, {
     resourceGroupName: resourceGroup.name,
     profileName: cdn.name,
-    originHostHeader: staticWebsite.hostName,
+    originHostHeader: sw.staticWebsite.hostName,
     origins: [{
         name: "blobstorage",
-        hostName: staticWebsite.hostName,
+        hostName: sw.staticWebsite.hostName,
     }],
 });
 
-// CDN endpoint to the website.
+// export CDN endpoint to the website.
+// using pulumi interpolate to manipulate from a resource Output.
 export const cdnEndpoint = pulumi.interpolate`https://${cdnEndpointResource.hostName}/`;
