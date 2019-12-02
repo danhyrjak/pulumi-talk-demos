@@ -22,6 +22,6 @@ VIEW state file once done
 
 cd ../demo-static-website
 pulumi stack select azure-oxford-demo-02
-ADD new demo.html file in data/wwwroot
+UPDATE index.html file in data/wwwroot
 pulumi up
 'yes' to update resources
