@@ -5,11 +5,16 @@ azure cli
 pulumi (1.6.1 or above)
 
 use environment variables below to hide update warning
-and set default passphrase for local stack encryption:
+and set default passphrase for local stack encryption (this is so we dont get prompted everytime):
 $env:PULUMI_SKIP_UPDATE_CHECK="true"
 $env:PULUMI_CONFIG_PASSPHRASE = "qwerty"
 
 commands for the demo (running in Powershell window):
+pulumi using az cli to run azure provider. using interactive login for demo,
+can set environment variables to use service principal for CD pipelines.
+using login --local to use local state store for demo. 
+can use additional parameters if using remote state store or pulumi service.
+
 az login
 pulumi login --local
 
@@ -17,11 +22,11 @@ cd demo-basic-storage
 pulumi stack init azure-oxford-demo-01
 COPY config values from azure-oxford-demo-1
 pulumi up
-'yes' to create resources
+'yes' to create resources. Note: can use --yes flag on up command in CD pipeline.
 VIEW state file once done
 
 cd ../demo-static-website
 pulumi stack select azure-oxford-demo-02
 UPDATE index.html file in data/wwwroot
 pulumi up
-'yes' to update resources
+'yes' to update resources Note: can use --yes flag on up command in CD pipeline.
