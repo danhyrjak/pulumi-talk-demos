@@ -1,5 +1,6 @@
 # Pulumi Talk Demos
-Code for the demos given during my Azure Oxford Pulumi Talk.
+Code for the demos given during my Azure Oxford Meetup (https://www.azureoxford.com/about) Pulumi Talk.
+
 Slides: https://docs.google.com/presentation/d/1e6voP018z04vV-RqPCwspmXpt0dB__SqRfEmOy5q-qs
 
 ## Demo Basic Storage
